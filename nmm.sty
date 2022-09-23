@@ -1,0 +1,178 @@
+%
+%
+%   ||\\    ||\\    ||\\    ||\\    ||\\    Nathan M. Mull
+%  ||  \\  ||  \\  ||  \\  ||  \\  ||  \\   Copyright 2022
+% ||    \\||    \\||    \\||    \\||    \\  All rights reserved
+%
+%
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{nmm}[2022/03/01 v0.01 LaTeX package for personal use]
+
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{thmtools, thm-restate}
+\usepackage{stmaryrd}
+
+% Buss derivation trees
+\usepackage{bussproofs}
+
+% For images
+\usepackage{tikz}
+\usetikzlibrary{cd}
+
+% theorems
+\declaretheorem[
+    name={Exercise},
+    refname={exercise,exercises},
+    Refname={Exercise,Exercises}
+]{exercise}
+\declaretheorem[
+    name={Lemma},
+    refname={lemma,lemmas},
+    Refname={Lemma,Lemmas}
+]{lemma}
+\declaretheorem[
+    name=Definition,
+    refname={definition,definitions},
+    Refname={Definition,Definitions}
+]{definition}
+\declaretheorem[
+    name=Theorem,
+    refname={theorem,theorems},
+    Refname={Theorem,Theorems}
+]{theorem}
+\declaretheorem[
+    name={Corollary},
+    refname={corollary,corollaries},
+    Refname={Corollary,Corollaries}
+]{corollary}
+\declaretheorem[
+    name={Fact},
+    refname={fact,facts},
+    Refname={Fact,Facts}
+]{fact}
+
+%Specifying title and heading fonts
+% \usepackage{titlesec}
+% \usepackage{titling}
+% \usepackage{fontspec}
+% \newfontfamily\headingfont[]{League Spartan}
+% \renewcommand{\maketitlehooka}{\headingfont}
+% \pretitle{
+%     \begin{center}
+%         \Huge
+% }
+% \posttitle{
+%     \end{center}
+% }
+% \titleformat*{\section}{\LARGE\headingfont\filcenter}
+% \titleformat*{\subsection}{\Large\headingfont\filcenter}
+% \titleformat*{\subsubsection}{\large\headingfont\filcenter}
+% \setmainfont{Cardo}
+
+% sets
+\newcommand{\setcomp}[2]{\{#1 \ | \ #2\}}
+
+% basic mathematics
+\newcommand{\len}[1]{|#1|}
+\newcommand{\upto}[1]{[#1]}
+\newcommand{\dran}[2]{[#1\dots#2]}
+\newcommand{\seq}[1]{(#1)}
+\newcommand{\seqbnd}[4]{(#1)_{#2{=}#3}^{#4}}
+
+% general typography
+\newcommand{\df}{\triangleq}
+\newcommand{\term}[1]{\textbf{#1}}
+\newcommand{\ow}{\textnormal{otherwise}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\etc}{\textit{etc.\ }}
+\newcommand{\etal}{\textit{et al.\ }}
+\newcommand{\etalp}{\textit{et al.}}
+\newcommand{\cont}{\hspace{10mm}} % for continuing an equation onto another line
+
+% pure type systems
+\newcommand{\sorts}{\mathcal S}
+\newcommand{\axioms}{\mathcal A}
+\newcommand{\rules}{\mathcal R}
+\newcommand{\vars}{\mathsf{V}}
+\newcommand{\terms}{\mathsf{T}}
+\newcommand{\types}{\mathsf{Ty}}
+
+% terms, types, etc.
+\newcommand{\lambdaT}[4][]{\lambda^{#1} #2^{#3}. \ #4}
+\newcommand{\PiT}[4][]{{\Pi^{#1} {#2}^{#3}. \ {#4}}}
+\newcommand{\app}[3][]{{\mathsf{app}^{#1}({#2}, {#3})}}
+\newcommand{\freeVars}{\mathsf{FV}}
+\newcommand{\boundVars}{\mathsf{BV}}
+
+% projections
+\newcommand{\fst}{\mathsf{fst}}
+\newcommand{\snd}{\mathsf{snd}}
+
+% contexts
+\newcommand{\emptyContext}{\varnothing}
+
+% derivations
+\newcommand{\statement}[3][]{{{#2} :^{#1} {#3}}}
+\newcommand{\judgment}[4][]{#2 \vdash_{#1} \statement {#3} {#4}}
+\newcommand{\negjudgment}[3]{#1 \not \vdash \statement {#2} {#3}}
+\newcommand{\judgmentQ}[5][]{#2 \vdash_{#1} \statement[#4]{#3}{#5}}
+\newcommand{\sub}[3]{#1[#2/#3]}
+
+% commands for conversions
+\newcommand{\eqbeta}{=_\beta}
+\newcommand{\onestepbeta}{\rightarrow_\beta}
+\newcommand{\multistepbeta}{\twoheadrightarrow_\beta}
+\newcommand{\multistepbetaleft}{\twoheadleftarrow_\beta}
+
+% Type systems
+\newcommand{\lC}{\lambda C}
+\newcommand{\lom}{\lambda \omega}
+\newcommand{\lwo}{\lambda \underline{\omega}}
+\newcommand{\lar}{\lambda_\to}
+\newcommand{\lP}{\lambda P}
+\newcommand{\lU}{\lambda U}
+\newcommand{\lUm}{\lambda U^-}
+\newcommand{\lSt}{\lambda\star}
+\newcommand{\lS}{\lambda S}
+\newcommand{\lHOL}{\lambda \mathsf{HOL}}
+\newcommand{\lTwo}{\lambda 2}
+\newcommand{\ndr}[1]{{#1}^*}
+
+% MOVE THESE THINGS
+\newcommand{\mfE}{\mathfrak{E}}
+\newcommand{\mfA}{\mathfrak{A}}
+\newcommand{\real}{\mathsf{real}}
+\newcommand{\SN}{\mathsf{SN}}
+\newcommand{\AT}{\mathsf{AT}}
+
+% Translation paper
+\DeclareMathOperator{\rhoT}{\rho}
+\DeclareMathOperator{\tauT}{\tau}
+\DeclareMathOperator{\gammaT}{\gamma}
+\newcommand{\sqT}[1]{\llbracket #1 \rrbracket}
+\newcommand{\judgmentN}[3]{{#1}  \vdash_{\lambda S^*} \statement{#2}{#3}}
+\newcommand{\avar}[2]{{}^{#1}{#2}}
+\newcommand{\svar}[2]{\avar{s_{#1}}{#2}}
+\newcommand{\var}[2][]{{{}^{#1}{#2}}}
+\newcommand{\ecc}[1]{\mathsf{ECC}^{#1}}
+
+\newcommand{\dterms}[1]{\terms_{\geq #1}}
+
+\newcommand{\lneg}[1]{\neg^{#1}}
+
+\newcommand{\listT}{\mathsf{List}}
+
+% Grammars
+\newcommand{\bnfeq}{\Coloneqq}
+\newcommand{\sbar}{ \ | \ }
+
+% references in file
+% this order is required by thmtools
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+% END OF FILE
+\endinput
