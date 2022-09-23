@@ -31,7 +31,7 @@ Define a translation from expressions to $\lambda I$-expressions in $\lS$ which 
 The translated terms are weakly normalizing and, hence, are strongly normalizing by the conservation theorem.
 And since the translation preserves infinite reduction paths, the untranslated terms are themselves strongly normalizing.
 
-This technique was originally used by S{\o}rensen \cite{sorensen-1997} via continuation-passing, and Xi \cite{xi-1997} subsequently presented an alternative proof via thunkification that is arguably simpler; rather than passing around continuations, expressions are thunked and the unit type which is passed along to evaluate thunks is padded with sub-expression necessary to translate to $\lambda I$-expressions.
+This technique was originally used by S{\o}rensen \cite{sorensen-1997} via continuation-passing (CPS), and Xi \cite{xi-1997} subsequently presented an alternative proof via thunkification that is arguably simpler; rather than passing around continuations, expressions are thunked and the unit type which is passed along to evaluate thunks is padded with sub-expression necessary to translate to $\lambda I$-expressions.
 Barthe \etal \cite{barthe-et-al-2001} generalized S{\o}rensen's result to a class of non-dependent pure type systems which includes non-normalizing systems like $\lambda U$.
 This report contains the analogous generalization for Xi's thunkification translation, with the hope of providing a simpler, more approachable proof of the main result of the Barthe \etal that may present opportunities for further improvements.
 
@@ -1078,7 +1078,7 @@ Let $\lS$ be a tiered pure type system.
 \end{itemize}
 \end{definition}
 
-Generalizability corresponds to the ability to build polymorphic padding variables, and harmlessness ensures that, when this is not possible, the padding variables never become untypable because a variable it depends on leaves the context.
+Generalizability corresponds the inclusion of rules for typing polymorphic padding variables, and harmlessness ensures that, when those rules are not included, the padding variables never become untypable because a variable it depends on leaves the context.
 See Barthe et al.\ (Remark 4.1, \cite{barthe-et-al-2001}) for more exposition on the motivations of this definition.
 We collect the padding variables in a single context that is dependent on the subject of the judgment we are translating.
 
@@ -1939,7 +1939,7 @@ Let $\mu: \terms \to \mathbb {N} \cup \{\infty\}$ denote the function which maps
 First, we need a lemma which describes $\tau_i$ interacts with substitution.
 
 \begin{lemma}\label{lem:tau-sub}
-For variable $\svar k x$ and expressions $M$ and $N$ such that $\deg(M) = i - 1$ and $\deg(N) = k - 1$, the following hold.
+For variable $\svar k x$ and expressions $M$ and $N$ where $\deg(M) = i - 1$ and $\deg(N) = k - 1$, the following hold.
 \begin{enumerate}
     \item\label{itm:tau-sub} If $k = i$, then $\tau_i(\sub M N {\svar k x}) \multistepbetaleft \sub {\tau_i(M)} {\tau_i'(N)} {\svar k x}$.
     \item\label{itm:tau-sub-ii} If $k > i$, then $\tau_i(\sub M N {\svar k x}) = \sub {\tau_i(M)} {\rho_i(N)} {\svar k x}$.
