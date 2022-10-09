@@ -10,19 +10,19 @@
 
 \abstract{
 In this report, I present a generalization of Xi's thunkification translation \cite{xi-1997} to a class of non-dependent pure type systems, in analogy with the generalization of S{\o}rensen's CPS translation \cite{sorensen-1997} by Barthe \etal \cite{barthe-et-al-2001}.
-The primary benefit of this result, as with Xi's original translation, is that it's proof is quite a bit simpler than its CPS-based counterpart.
+The primary benefit of this result, as with Xi's original translation, is that its proof is quite a bit simpler than its CPS-based counterpart.
 As a further simplification, I also present the class of \textit{tiered} pure type systems, which are concretely specified, and so simpler to work with than the systems considered by Barthe \etal and others, but are equivalent with respect to questions regarding normalization.
 }
 
 \section{Introduction}
 
-Pure type systems were introduced by Terlouw \cite{terlouw-1989}, Berardi \cite{berardi-1988}, and later by Barendregt \cite{barendregt-1991, barendregt-1993}, as a natural generalization of the lambda cube; they contain the lambda cube as well as systems with more complex sort structure and product type formation.
+Pure type systems were introduced by Terlouw \cite{terlouw-1989}, Berardi \cite{berardi-1988}, and later by Barendregt \cite{barendregt-1991, barendregt-1993}, as a natural generalization of the lambda cube; they include the lambda cube as well as systems with more complex sort structure and product type formation.
 The study of pure type systems can in some sense be viewed as the study of how sort structure affects the meta-theoretic properties of a type system, especially because of the minimal set of type formers (\eg, there are no $\Sigma$-types).
 One such meta-theoretic property, arguably one of the most important, is normalization.
 A type system is \textit{weakly normalizing} if every typable term has a normal form and is \textit{strongly normalizing} if no typable term appears in an infinite reduction sequence.
 Girard \cite{girard-1972} demonstrated that sort structure can have a nontrivial effect on the normalization behavior of a type system by showing that the pure type system $\lambda U$ is not strongly normalizing, the import being that circularity in the sort structure of a pure type system is not a necessary condition for non-normalization.
 This leaves open the problem of understanding the interplay of sort structure and normalization.
-One particular open question that has persisted is the Baredregt-Geuvers conjecture, which states that weak normalization implies strong normalization for all pure type systems.
+One particular open question that has persisted is the Baredregt-Geuvers-Klop conjecture, which states that weak normalization implies strong normalization for all pure type systems.
 
 The primary technique for proving strong normalization from weak normalization passes through some form of the $\lambda I$-calculus, where it readily follows from a conservation theorem along the lines of the one proved by Church and Rosser for the untyped lambda calculus \cite{church-rosser-1936}.
 The argument is roughly as follows:
@@ -31,16 +31,16 @@ Define a translation from expressions to $\lambda I$-expressions in $\lS$ which 
 The translated terms are weakly normalizing and, hence, are strongly normalizing by the conservation theorem.
 And since the translation preserves infinite reduction paths, the untranslated terms are themselves strongly normalizing.
 
-This technique was originally used by S{\o}rensen \cite{sorensen-1997} via continuation-passing (CPS), and Xi \cite{xi-1997} subsequently presented an alternative proof via thunkification that is arguably simpler; rather than passing around continuations, expressions are thunked and the unit type which is passed along to evaluate thunks is padded with sub-expression necessary to translate to $\lambda I$-expressions.
+This technique was originally used by S{\o}rensen \cite{sorensen-1997} via continuation-passing (CPS), and Xi \cite{xi-1997} subsequently presented an alternative proof via thunkification that is arguably simpler; rather than passing around continuations, expressions are thunked and the unit term which is passed along to evaluate thunks is padded with sub-expression information necessary to translate to $\lambda I$-expressions.
 Barthe \etal \cite{barthe-et-al-2001} generalized S{\o}rensen's result to a class of non-dependent pure type systems which includes non-normalizing systems like $\lambda U$.
 This report contains the analogous generalization for Xi's thunkification translation, with the hope of providing a simpler, more approachable proof of the main result of the Barthe \etal that may present opportunities for further improvements.
 
-In the interest of further simplification, I present a class of basic, concrete pure type systems I call \textit{tiered} pure type systems.
+In the interest of further simplification, I also present a class of basic, concrete pure type systems I call \textit{tiered} pure type systems.
 Despite their simplicity they are sufficient to consider with regards to questions about normalization behavior if we want to derive the same result as the one by Barthe \etal
-Tiered pure type systems can be viewed as the \textit{atoms} of persistent stratified systems; the persistent stratified systems are disjoint unions of tiered systems.
+Tiered pure type systems can be viewed as the \textit{atoms} of persistent stratified systems, \ie, the persistent stratified systems are disjoint unions of tiered systems.
 
 In what follows I present some preliminary material, which includes some exposition on tiered systems.
-I then present the generalized thunkification translation in two parts: one part for the types-level translation and one part for terms-level translation.
+I then present the generalized thunkification translation in two parts: one part for the type-level translation and one part for term-level translation.
 Finally, I show how to derive strong normalization from weak normalization with this translation.
 
 \section{Preliminaries}
@@ -50,7 +50,7 @@ The elements of $\sorts$, $\axioms$, and $\rules$ are called sorts, axioms and r
 We use $s$ and $t$ as a meta-variable for sorts.\footnote{For any subsequent meta-variables, we also allow positive integer subscripts and tick marks, \eg, $s_1$, $s_2$, and $s'$. Note, however, that in later sections, $s_i$ will refer to a particular sort in tiered systems. We will try to be as clear as possible when distinguishing between these two cases of notation.}
 
 For each sort $s$, fix a $\mathbb Z^+$-indexed set of expression variables $\vars_s$.
-Let $\var[s]{v_i}$ denote the $i$th term variable in $\vars_s$ and let $\vars$ denote $\bigcup_{s \in \sorts} \vars_s$.
+Let $\var[s]{v_i}$ denote the $i$th expression variable in $\vars_s$ and let $\vars$ denote $\bigcup_{s \in \sorts} \vars_s$.
 We use $x$, $y$, and $z$ as meta-variables for expression variables.
 The choice to annotate variables with sorts is one of convenience.
 The annotations can be dropped for the systems we consider, and are selectively included in the exposition.
@@ -75,6 +75,8 @@ We call these statements appearing in proto-contexts \term{declarations}.
 We use $\Gamma$, $\Delta$, and $\Upsilon$ as meta-variables for contexts.
 Often the sequence braces of contexts are dropped and concatenation of contexts is denoted by comma-separation.
 The $\beta$-equality relation and substitution extend to contexts element-wise.
+For a context $\Gamma$ and statement $(\statement x A)$ we write $(\statement x A) \in \Gamma$ if that statement appears in $\Gamma$.
+We define the subset relation $\Gamma \subset \Delta$ for contexts $\Gamma$ and $\Delta$ analogously.
 
 A \term{proto-judgment} is a proto-context together with statement, denoted $\judgment \Gamma M N$.
 The designation ``judgment" is reserved for proto-judgments that are derivable according to the rules below.
@@ -82,8 +84,8 @@ Likewise, the designation ``context" is reserved for proto-contexts that appear 
 
 \begin{definition}
 The pure type system $\lambda S$ specified by $(\sorts, \axioms, \rules)$ has the following rules for deriving judgments.
-In what follows, the meta-variable $s$ ranges over all sorts in $\mathcal S$.
-Furthermore, a variable $\avar s x$ is \term{fresh} with respect to a context $\Gamma$ if it does not appear anywhere in $\Gamma$.
+In what follows, the meta-variables $s$ and $s'$ range over all sorts in $\mathcal S$ when unspecified.
+We say that a variable $\avar s x$ is \term{fresh} with respect to a context $\Gamma$ if it does not appear anywhere in $\Gamma$.
 
 \begin{itemize}
 \item
@@ -145,7 +147,7 @@ $}
     \judgment[\lS] {\Gamma, \statement {\avar s x} A} M B
 $}
 \AxiomC {$
-    \judgment[\lS] \Gamma {\PiT {\avar s x} A B} s
+    \judgment[\lS] \Gamma {\PiT {\avar s x} A B} {s'}
 $}
 \BinaryInfC {$
     \judgment[\lS] \Gamma {\lambdaT {\avar s x} A M} {\PiT {\avar s x} A B}
@@ -168,8 +170,7 @@ $}
 
 \item
 \textbf{Conversion.} For any terms $A$ and $B$ such that $A \eqbeta B$
-\begin{prooftree}
-\AxiomC {$
+\begin{prooftree} \AxiomC {$
     \judgment[\lS] \Gamma M A
 $}
 \AxiomC {$
@@ -183,7 +184,7 @@ $}
 \end{definition}
 
 The subscript on the turnstile is dropped when there is no fear of ambiguity.
-Also the annotations on $\Pi$-expressions and $\lambda$-expressions are non-standard, and will in most cases be dropped, but they affect the generation lemma (\Autoref{lem:generation}).
+The annotations on variables in $\Pi$-expressions and $\lambda$-expressions are non-standard, and will in most cases be dropped, but they affect the statement of the generation lemma (\Autoref{lem:generation}).
 It is also standard to write $A \to B$ for $\PiT x A B$ in the case that $x$ does not appear free in $B$, and to use the derived inference rule 
 \begin{prooftree}
 \AxiomC {$
@@ -197,9 +198,9 @@ $}
 $}
 \end{prooftree}
 
-An expression $M$ is \textbf{derivable} in $\lS$ if there is some context $\Gamma$ and expression $A$ such that $\judgment[\lS] \Gamma M A$.
+An expression $M$ is said to be \textbf{derivable} in $\lS$ if there is some context $\Gamma$ and expression $A$ such that $\judgment[\lS] \Gamma M A$.
 Although there is no distinction between terms and types, it is useful to call a judgment a \textbf{type judgment} if it is of the form $\judgment \Gamma A s$ where $s \in \sorts$, and a \textbf{term judgment} if it is of the form $\judgment \Gamma M A$ where $\judgment \Gamma A s$ for some sort $s$.
-In this case, we also say that $M$ is a term and $A$ is a type.
+We also say that $M$ is a term and $A$ is a type.
 By type correctness (\Autoref{lem:type-correctness}), a judgment that is not a type judgment is a term judgment, though some judgments are both type and term judgments.
 In the system specified by $(\{s_1, s_2\}, \{(s_1, s_2)\}, \emptyset)$, for example,
 \begin{itemize}
@@ -220,8 +221,8 @@ For the remainder of the section, fix a pure type system $\lS$.
 For any context $\Gamma$ and expression $A$, the following hold.
 \begin{itemize}
 \item \underline{Sort.} For any sort $s$, if $\judgment \Gamma s A$, then there is a sort $s'$ such that $A \eqbeta s'$ and $(s, s') \in \axioms$.
-\item \underline{Variable.} For any sort $s$, if $\judgment \Gamma {\avar s x} A$, then there is an type $B$ such that $\judgment \Gamma B s$ and $(\statement {\avar s x} B)$ appears in $\Gamma$ and $A \eqbeta B$.
-\item \underline{$\Pi$-expression.} For sort $s$ and expressions $B$ and $C$, if
+\item \underline{Variable.} For any sort $s$ and variable $\avar s x$, if $\judgment \Gamma {\avar s x} A$, then there is an type $B$ such that $\judgment \Gamma B s$ and $(\statement {\avar s x} B)$ appears in $\Gamma$ and $A \eqbeta B$.
+\item \underline{$\Pi$-expression.} For any sort $s$ and expressions $B$ and $C$, if
 \[
     \judgment \Gamma {\PiT {\avar s x} B C} A
 \]
@@ -230,13 +231,13 @@ then there are sorts $s'$, and $s''$ such that
     \judgment \Gamma B s \qquad \text{and} \qquad \judgment {\Gamma, \statement {\avar s x} B} C {s'}
 \]
 and $(s, s', s'') \in \rules$ and $A \eqbeta s''$.
-\item \underline{$\lambda$-expression.} For sort $s$ and expressions $B$ and $M$, if\
+\item \underline{$\lambda$-expression.} For any sort $s$ and expressions $B$ and $M$, if
 \[
 \judgment \Gamma {\lambdaT {\avar s x} B M} A
 \]
-then there is a type $C$ such that
+then there is a type $C$ and sort $s'$ such that such that
 \[
-\judgment \Gamma {\PiT {\avar s x} B C} s \qquad \text{and} \qquad \judgment {\Gamma, \statement {\avar s x} B} M C
+\judgment \Gamma {\PiT {\avar s x} B C} {s'} \qquad \text{and} \qquad \judgment {\Gamma, \statement {\avar s x} B} M C
 \]
 and $A \eqbeta \PiT {\avar s x} B C$.
 \item \underline{Application.} For expressions $M$ and $N$, if $\judgment \Gamma {MN} A$, then there is a sort $s$ and types $B$ and $C$ such that $\judgment \Gamma M {\PiT {\avar s x} B C}$ and $\judgment \Gamma N B$ and $A \eqbeta \sub C N {\avar s x}$.
@@ -271,7 +272,7 @@ For contexts $\Gamma$ and $\Delta$ and expressions $M$ and $A$, if  $\Gamma \sub
 
 \begin{lemma}
 \label{lem:permutation}
-(Permutation) For contexts $\Gamma$ and $\Delta$, variables $x$ and $y$, expressions $A$, $B$, $M$, and $C$, if $x$ does not appear free in $B$ and
+(Permutation) For contexts $\Gamma$ and $\Delta$, variables $x$ and $y$, and expressions $A$, $B$, $M$, and $C$, if $x$ does not appear free in $B$ and
 \[
     \judgment{
         \Gamma, \statement x A, \statement y B, \Delta
@@ -319,8 +320,8 @@ For any context $\Gamma$, variable $x$, expressions $A$ and $B$, and top-sort $s
 
 \subsection{Tiered Pure Type Systems}
 
-Pure type systems in general are difficult to work with, so it is typical to consider a class of pure type systems satisfying a collection of properties, \eg, functionality, persistence, stratification as defined below.
-Here we choose to work with an simple class of systems we call \textbf{tiered pure type systems}, which have a very concrete description.
+General pure type systems are notoriously difficult to work with so it is typical to consider a class of pure type systems satisfying a collection of properties, \eg, functionality, persistence, stratification as defined below.
+Here I choose to work with an simple class of systems I call \textbf{tiered pure type systems}, which have a very concrete description.
 
 \begin{definition}
 Let $n$ be a positive integer.
@@ -353,9 +354,9 @@ A couple remarks about these systems:
 \begin{itemize}
 \item these systems can be envisioned as graphs as in \autoref{fig:tiered};
 \item the 2-tiered systems are exactly the lambda cube;
-\item the $n$-tiered systems are subsystems of $\ecc n$ (as defined in \cite{luo-1990}) with only the two-sorted rules and are considered in passing by Barthes \etal (Remark 2.39, \cite{barthe-et-al-2001}).
+\item the $n$-tiered systems and are considered in passing by Barthes \etal (Remark 2.39, \cite{barthe-et-al-2001}). They include natural subsystems of $\ecc n$ (as defined in \cite{luo-1990}) with only the two-sorted rules.
 \end{itemize}
-Working in tiered systems simplifies the arguments in the next section because of their explicit structure, and they are sufficient to consider in so far as their normalization is equivalent to that of a previously considered classes of systems defined in terms of less concrete properties.
+Working in tiered systems simplifies the arguments in the following section because of their explicit structure, and they are sufficient to consider in so far as their normalization is equivalent to that of a previously considered classes of systems defined in terms of less concrete properties.
 This is likely a folklore result, as I could not find a reference for it, so I have included the proof here.
 First, some standard definitions, along with a couple definitions taken from Barthe \etal \cite{barthe-et-al-2001} for their definition of generalized non-dependent systems.
 Note that we have already seen the definition of functional pure type systems (\Autoref{def:functional}) in the previous section.
