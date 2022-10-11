@@ -320,7 +320,7 @@ For any context $\Gamma$, variable $x$, expressions $A$ and $B$, and top-sort $s
 
 \subsection{Tiered Pure Type Systems}
 
-General pure type systems are notoriously difficult to work with so it is typical to consider a class of pure type systems satisfying a collection of properties, \eg, functionality, persistence, stratification as defined below.
+General pure type systems are notoriously difficult to work with so it is typical to consider a class of pure type systems satisfying a collection of properties, \eg, functionality, persistence, and stratification, as defined below.
 Here I choose to work with an simple class of systems I call \textbf{tiered pure type systems}, which have a very concrete description.
 
 \begin{definition}
@@ -397,7 +397,7 @@ A pure type system is persistent and weakly stratified if and only if it is the 
 It is straightforward to verify that tiered systems are persistent and weakly stratified, and that the same is true for disjoint unions of such systems, so we focus on the other direction.
 Let $\lambda S$ be a pure type system that is persistent and weakly stratified and let $T$ denote the set of top-sorts in $\sorts$.
 Considered the $T$-indexed partition $\{\sorts_t\}_{t \in T}$ of $\sorts$ where $\sorts_t = \setcomp {s} {s \leq t}$.
-Let a \textbf{chain} from $s$ to $s'$ be a sequence of sorts $(\upsilon_1, \dots, \upsilon_k)$ such that $\upsilon_1 = s$ and $\upsilon_k = s'$ and $(\upsilon_i, \upsilon_{i + 1}) \in \axioms$ for each $i$ in $\upto{k - 1}$.
+We say a \textbf{chain} from $s$ to $s'$ is a sequence of sorts $(\upsilon_1, \dots, \upsilon_k)$ such that $\upsilon_1 = s$ and $\upsilon_k = s'$ and $(\upsilon_i, \upsilon_{i + 1}) \in \axioms$ for each $i$ in $\upto{k - 1}$.
 Persistence ensures that each set in this partition is totally ordered by $\leq_\axioms$.
 In particular, it is possible to show that there is at most one chain ending at $t$ of any length $n$ contained in a set $\sorts_t$ for a top-sort $t$.
 This also implies that each set in the partition is disjoint.
@@ -412,7 +412,6 @@ Let $\lambda S_t$ denote the pure system specified by
 \axioms_{\lambda S_t} &\df \axioms_{\lambda S} \cap (\sorts_t \times \sorts_t) \\
 \rules_{\lambda S_t} &\df \rules_{\lambda S} \cap (\sorts_t \times \sorts_t \times \sorts_t)
 \end{align*}
-
 The axioms and rules of each system are clearly pairwise disjoint.
 They also cover all axioms and rules of $\lambda S$.
 For suppose that $(s, s')$ is an axiom such that $s \in \sorts_t$ and $s' \in \sorts_{t'}$ for distinct top-sorts $t$ and $t'$.
@@ -444,12 +443,12 @@ A pure type system is generalized non-dependent if and only if it is the disjoin
 Roux and van Doorn \cite{roux-doorn-2014} show that the (strong) normalization of a disjoint union of pure type systems is equivalent to the (strong) normalization of each of its individual summands.
 So on questions of normalization regarding persistent, weakly stratified (\eg, generalized non-dependent) pure type systems, it suffices to consider tiered systems.
 
-One of the primary benefits of working in persistent systems is that derivable expressions can be classified by the \textit{level} in the system at which they are derivable.
-This property is shown by defining a degree measure on terms and classifying terms according to their degree.
+One of the primary benefits of working in persistent systems in general (and tiered systems in particular) is that derivable expressions can be classified by the \textit{level} in the system at which they are derivable.
+This property is shown by defining a degree measure on expression and classifying expressions according to their degree.
 This result is due to Berardi \cite{berardi-1990}, and the presentation here roughly follows the same course.
 
 \begin{definition}
-Let the \textbf{degree} of a term be given according to the following function $\deg : \terms \to \mathbb N$.
+The \textbf{degree} of an expression is given according to the following function $\deg : \terms \to \mathbb N$.
 \begin{align*}
     \deg(s_i) &\df i + 1 \\
     \deg(\svar i x) &\df i - 1 \\
@@ -467,7 +466,7 @@ For any expression $A$, the following hold.
 \begin{itemize}
     \item $\deg A = n + 1$ if and only if $A = s_n$.
     \item $\deg A = n$ if and only if $\judgment[\lS] \Gamma A {s_n}$ for some context $\Gamma$.
-    \item For $i \in \upto {n - 1}$, we have $\deg A = i$ if and only if $\judgment[\lS] \Gamma A B$ and $\judgment[\lS] \Gamma B {s_{i + 1}}$ for some context $\Gamma$ and term $B$.
+    \item For $i \in \upto {n - 1}$, we have $\deg A = i$ if and only if $\judgment[\lS] \Gamma A B$ and $\judgment[\lS] \Gamma B {s_{i + 1}}$ for some context $\Gamma$ and expression $B$.
 \end{itemize}
 In particular, for context $\Gamma$ and expressions $M$ and $A$, if $\judgment \Gamma M A$ then $\deg A = \deg M + 1$.
 \end{restatable}
@@ -490,8 +489,8 @@ Let $\lS$ be a tiered pure type system and let $A$ and $B$ be expressions deriva
 
 And last, the main lemma about non-dependent systems.
 One of the tricky aspects of working with dependencies is that they can introduce sub-expressions of a lower degree than the expression itself.
-This makes very difficult to reverse induct on degree, which is an important proof technique we will be using.
-We won't need the full version of this lemma, just the simplified version which says that the degree of variables appearing in an expression must be at most that of the expression itself.
+This makes it very difficult to reverse induct on degree, which is an important proof technique for these systems.
+We won't need the full version of this lemma, just the simplified version which says that the degree of variables appearing in an expression must be at least that of the expression itself.
 
 \begin{lemma}
 \label{lem:free-var-non-dep}
@@ -502,13 +501,13 @@ If a variable $\svar j x$ appears free in $A$, then $j > i$.
 \section{The Generalized Thunkification Translation}
 
 Xi's thunkification translation \cite{xi-1997} was introduced as a simpler approach to deriving strong normalization from weak normalization in typed lambda calculi, as compared to the CPS translation of S{\o}rensen \cite{sorensen-1997}.
-Roughly speaking, rather than passing continuations, Xi's translations pervasively thunkifies expressions, using uninterpreted padding functions to store additional sub-expression information in the evaluation of thunkified expressions.
+Roughly speaking, rather than passing continuations, Xi's translation pervasively thunkifies expressions, using uninterpreted padding functions to store additional sub-expression information in the evaluation of thunkified expressions.
 This allows for expressions to be mapped into the $\lambda I$-calculus, where strong normalization is more readily proved from weak normalization.
-S{\o}rensen's translation was subsequently generalized by Barthe \etal to a generalized non-dependent, clean, negatable pure type systems \cite{barthe-et-al-2001}.
+S{\o}rensen's translation was subsequently generalized by Barthe \etal to generalized non-dependent, clean, negatable pure type systems \cite{barthe-et-al-2001}.
 In this section, we extend Xi's translation by analogy.
 This yields a simple alternative proof of the main result of Barthe \etal
 
-We work, without loss of generality, in a fixed $n$-tiered pure type system $\lS$.
+Without loss of generality, we work with a fixed $n$-tiered pure type system $\lS$.
 We present two families of translations, $\{\rho_i\}_{i \in \upto n}$ for types and $\{\tau_i\}_{i \in \upto n}$ for terms.
 
 \subsection{The Type-Level Translation}
@@ -519,13 +518,12 @@ In the case of $s_1$, this requires an additional type variable in the context.
 
 \begin{definition}
 For $i \in \dran 2 n$, let $\bot_i$ denote $s_{i - 1}$ and let $\bot_1$ be a distinguished variable.
-Also let $\Delta_1$ and $\Delta_2$ denote the context $(\bot_1 : s_1)$ and let $\Delta_i$ denote the empty context in all other cases.\footnote{We define $\Delta_2$ in this way because we want that in all contexts $\Delta_j$ where $j \geq 2$, we have $\bot_{j - 1}$ is also derivable. This will play a similar role to the variable $I$ included in contexts by Barthe \etal (Definition 3.2, \cite{barthe-et-al-2001}).}
+Also let $\Delta_1$ and $\Delta_2$ denote the context $(\bot_1 : s_1)$ and let $\Delta_i$ denote the empty context in all other cases.\footnote{We define $\Delta_2$ in this way because we want that in all contexts $\Delta_j$ where $j \geq 2$, the expression $\bot_{j - 1}$ is derivable. This will play a similar role to the variable $I$ included in contexts by Barthe \etal (Definition 3.2, \cite{barthe-et-al-2001}).}
 \end{definition}
 
 The family of translations $\{\rho_i\}_{i \in \upto n}$ gives the types of thunkified terms.
 This means pervasively replacing each type $A$ where $\deg(A) = i$ with its corresponding thunkified form, \ie, $\bot_i \to A$.
-Unless otherwise stated, the indices range over values in $\upto n$.
-Furthermore, for notational convenience, let $\terms_j$ denote the set $\setcomp {M \in \terms} {\deg(M) = j}$ and let $\terms_{\geq j}$ denote the set $\setcomp {M \in \terms} {\deg(M) \geq j}$.
+For notational convenience, let $\terms_j$ denote the set $\setcomp {M \in \terms} {\deg(M) = j}$ and let $\terms_{\geq j}$ denote the set $\setcomp {M \in \terms} {\deg(M) \geq j}$.
 
 \begin{definition}
 For each index $i$, let the functions $\rho_i : \terms_{\geq i} \to \terms$ and $\rho_i' : \terms_{\geq i} \to \terms$ be given simultaneously as follows.
@@ -631,7 +629,7 @@ This will ensure type derivations can be used in proving that the term-level tra
     \rho_i'(\Gamma) & \ow
 \end{cases}
 \end{align*}
-Note that, for convenience, we tranlate the empty context to be $\Delta_i$.
+Note that, for convenience, we translate the empty context to be $\Delta_i$.
 We also need to restrict our focus to systems for which it is possible define types of the form $\bot_i \to A$.
 This justifies the following definition.
 \begin{definition}
