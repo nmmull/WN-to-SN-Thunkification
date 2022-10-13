@@ -494,8 +494,8 @@ We won't need the full version of this lemma, just the simplified version which 
 
 \begin{lemma}
 \label{lem:free-var-non-dep}
-Let $\lS$ be a non-dependent tiered pure type system and let $A$ be an expression such that $\deg(A) = i$.
-If a variable $\svar j x$ appears free in $A$, then $j > i$.
+Let $\lS$ be a non-dependent tiered pure type system.
+For any expression $A$, if a variable $\svar j x$ appears free in $A$, then $j > \deg(A)$.
 \end{lemma}
 
 \section{The Generalized Thunkification Translation}
@@ -723,7 +723,7 @@ $}
 \end{prooftree}
 where $j \geq i + 1$.
 Note that $\rho_i'(A) = \rho_i(A)$ since $\deg(A) > i$.
-So by the inductive hypothesis, we have the inference
+So by the inductive hypothesis, we have
 \begin{prooftree}
 \AxiomC {$
     \judgment {
@@ -922,7 +922,7 @@ $}
 $}
 \end{prooftree}
 Since $\deg(M) = \deg(\lambdaT x A M) \geq i$, we have $\deg(B) > i$, and since $\lS$ is non-dependent, we have $\deg (A) \geq \deg(B) > i$.
-In particular, $\rho_i'(A) = \rho_i(A)$. 
+In particular, $\rho_i'(A) = \rho_i(A)$.
 Therefore, we have
 \begin{prooftree}
 \AxiomC {$
@@ -1065,14 +1065,14 @@ where $\rho_i(A) \eqbeta \rho_i(B)$ by \Autoref{lem:rho-beta}.
 Next we define the translation of terms.
 In addition to the extra type information in $\Delta_i$, we also need what amount to uninterpreted padding variables in the context for collecting expressions which are arguments to $\lambda$-terms.
 These will be used to ensure that translated terms are $\lambda I$-terms in the appropriate sense (see \Autoref{def:lambda-i}).
-The padding variables are made to be polymorphic when possible, but the type may need to be specified more strictly when this is not possible.
+The padding variables are made to be polymorphic when possible, but the type may need to be more strictly specified when this is not possible.
 To more carefully make this distinction, we need the following definition.
 
 \begin{definition}
 Let $\lS$ be a tiered pure type system.
 \begin{itemize}
     \item A rule $(s_i, s_j)$ is \textbf{generalizable} if $(s_{i + 1}, s_j) \in \rules_{\lS}$.
-    \item A rules $(s_i, s_j)$ is \textbf{harmless} if neither $(s_k, s_j)$ nor $(s_k, s_{j - 1})$ are in $\rules_{\lS}$ for $k > j$.
+    \item A rules $(s_i, s_j)$ is \textbf{harmless} if neither $(s_k, s_j)$ nor $(s_k, s_{j - 1})$ are in $\rules_{\lS}$ when $k > j$.
     \item $\lS$ is \textbf{clean} if all its rules are generalizable or harmless.
 \end{itemize}
 \end{definition}
@@ -1103,13 +1103,12 @@ where
 \newcommand{\pair}[3][]{\langle#2, #3\rangle_{#1}}
 We will write $\pair[\rho_i'(A)] M N$ for both $p_x \rho_i'(A) M N$ and $p_x M N$ (\ie, for each case of $\alpha_{i , A}$) when there is no fear of ambiguity.
 
-As we will see, the context of padding variables appears \textit{after} the translation of the given context, as it may depend on some of the declarations in it.
-And so to translate abstraction or product type formations, we need some declarations to \textit{commute} with the context of padding variables.
+The context of padding variables appears \textit{after} the translation of the given context, as it may depend on some of the declarations in it, so to translate abstraction or product type formations, we need some declarations to commute with the context of padding variables.
 The following ensures that this is possible.
 
 \begin{lemma}
 \label{lem:free-var-upsilon}
-If $(s_j, s_i)$ or $(s_j, s_{i - 1})$ are in $\rules_{\lS}$, then no undistinguished variables (\ie, ignoring $\bot_i$) of degree $j$ can appear free in $\Upsilon_{i, M}$ for any term $M$ where $\deg(M) = i - 1$.
+If $(s_j, s_i)$ or $(s_j, s_{i - 1})$ are in $\rules_{\lS}$, then no undistinguished variables (\ie, ignoring $\bot_i$) of degree $j - 1$ (\ie, of the form $\svar j x$) can appear free in $\Upsilon_{i, M}$ for any term $M$ where $\deg(M) = i - 1$.
 \end{lemma}
 
 \begin{proof}
@@ -1144,8 +1143,8 @@ For each index $i$, define the functions $\tau_i : \terms_{i - 1} \to \terms$ an
 where $j \geq i - 1$ and $\bullet_i$ is a distinguished variable.
 \end{definition}
 
-We are taking advantage of a couple representation trick in this translation.
-For the case of sorts, we will use the fact that $\bot_i = s_{i - 1}$ and for the case of $\Pi$-types, we will use the fact that $\judgment{}{\bot_{i - 1}}{\bot_i}$ for $i \geq 2$.
+We are taking advantage of a couple representation tricks in this translation.
+For the case of sorts, we use the fact that $\bot_i = s_{i - 1}$ and for the case of $\Pi$-types, we use the fact that $\judgment{\Delta_i}{\bot_{i - 1}}{\bot_i}$ if $i \geq 2$.
 These tricks are used to maintain one of the most important features of this translation, \ie, that $\tau'(M)$ is linear in $\bullet_i$ on terms of degree $i - 1$.
 \begin{lemma}
 \label{lem:tau-facts}
@@ -1220,9 +1219,9 @@ If the derivation is of the form
 \[
     \judgment{}{s_{i - 2}}{s_{i - 1}}
 \]
-the, of course,
+then of course
 $
-    \judgment{\Delta_i}{\bullet_i}{\bot_i}
+    \judgment{\Delta_i, \statement {\bullet_i} {\bot_i}}{\bullet_i}{\bot_i}
 $,
 noting that 
 \[
@@ -1861,7 +1860,7 @@ A non-dependent tiered pure type system $\lambda S$ is \textbf{$i$-secure} if fo
 
 The induction step splits into two cases, depending on whether the sort with the index in question is negatable or irrelevant.
 By negatablity of the system itself, these are the only two cases.
-The case of irrelevant sorts is simple and handled directly by Barth \etal
+The case of irrelevant sorts is simple and handled directly by Barthe \etal
 
 \begin{lemma}\label{lem:irr-sn}
 (Lemma 5.19, \cite{barthe-et-al-2001})
@@ -1907,7 +1906,7 @@ Let $\lS$ be a non-dependent, clean, negatable tiered pure type systems.
 For any derivable expression $M$ with $\deg(M) = i - 1$, if $\tau_i'(M)$ is weakly normalizing then $M$ is strongly normalizing.
 \end{lemma}
 
-Before proving the path preservation, the missing component of the above lemma, we can present the proof of our final result, which we have been outlining thus far.
+Before proving path preservation, the missing component of the above lemma, we can present the proof of the final result, which we have been outlining thus far.
 
 \begin{theorem}
 Let $\lS$ be a non-dependent, clean, negatable $n$-tiered pure type system.
@@ -1920,7 +1919,7 @@ By the classification lemma (\Autoref{lem:classification}), the only expressions
 It is straightforward to verify that this set of types is strongly normalizing.
 So suppose that $\lS$ is $k$-secure.
 By \Autoref{lem:irr-sn}, if $s_k$ is irrelevant, then $\lS$ is $(k - 1)$-secure.
-Otherwise, since $\lS$ is clean, $s_k$ must be negatable.
+Otherwise, since $\lS$ is negatable, $s_k$ must be negatable.
 Let $M$ be a term in $\terms_{\geq k - 1}$ derivable in $\lS$.
 If $\deg(M) \geq k$, then $M$ is strongly normalizing by $k$-security.
 Otherwise, by \Autoref{lem:tau-pres}, $\tau_k(M)$ is derivable and so is weakly normalizing.
@@ -1932,10 +1931,10 @@ So by \Autoref{lem:wn-to-sn}, $M$ is strongly normalizing, and consequently, $\l
 To prove that $\tau_i$ preserves infinite reduction paths, we show that the length of the longest reduction from path starting at an expression $M$ is at most the length of the longest path from $\tau_i(M)$.
 
 \begin{definition}
-Let $\mu: \terms \to \mathbb {N} \cup \{\infty\}$ denote the function which maps an expression $M$ to the length of the longest reduction sequence starting at $M$ (where $\mu(M) = \infty$ if no such sequence exists).
+Let $\mu: \terms \to \mathbb {N} \cup \{\infty\}$ be the function which maps an expression $M$ to the length of the longest reduction sequence starting at $M$ (where $\mu(M) = \infty$ if no such sequence exists).
 \end{definition}
 
-First, we need a lemma which describes $\tau_i$ interacts with substitution.
+First, we to know how $\tau_i$ interacts with substitution.
 
 \begin{lemma}\label{lem:tau-sub}
 For variable $\svar k x$ and expressions $M$ and $N$ where $\deg(M) = i - 1$ and $\deg(N) = k - 1$, the following hold.
@@ -1946,7 +1945,7 @@ For variable $\svar k x$ and expressions $M$ and $N$ where $\deg(M) = i - 1$ and
 \end{lemma}
 
 \begin{proof}
-We prove here \autoref{itm:tau-sub} by induction on the structure of $M$.
+We prove \autoref{itm:tau-sub} by induction on the structure of $M$.
 The case in which $M$ is a sort is straightforward.
 
 \noindent\underline{Variable.} If $M = \svar {i} x$ then
@@ -1967,8 +1966,8 @@ Otherwise, $M$ is of the form $\svar i y$ with $y \not = x$ and
 If $\deg(A) = i - 1$, then
 \begin{align*}
 \tau_i(\sub{(\PiT y A B)}{N}x) &=
-\tau_i(\sub A N x) \to \tau_i(\sub B N x) \\ &\multistepbetaleft
-\sub{\tau_i(A)}{\tau_i'(N)}{x} \to \sub{\tau_i(B)}{\tau_i'(N)}{x} \\ &=
+\tau_i(\sub A N x)\bot_{i - 1} \to \tau_i(\sub B N x) \\ &\multistepbetaleft
+\sub{\tau_i(A\bot_{i - 1})}{\tau_i'(N)}{x} \to \sub{\tau_i(B)}{\tau_i'(N)}{x} \\ &=
 \sub{\tau_i(\PiT y A B)}{\tau_i'(N)}{x}
 \end{align*}
 Otherwise, note that if $\deg(A) > i - 1$, then by \Autoref{lem:free-var-non-dep}, $\svar i x$ does not appear free in $A$ and the free variables of $\rho_i'(A)$ are the same as those of $A$, so
@@ -1985,7 +1984,7 @@ The cases that $M$ is a $\lambda$-terms or an application are similar.
 Furthermore the proof of \autoref{itm:tau-sub-ii} is similar as well.
 \end{proof}
 
-Now for the upper bound proofs.
+Now for the upper bound.
 We'll need a generalization of a basic result from the theory of the untyped lambda calculus (see \cite{xi-1997}).
 
 \begin{lemma}
@@ -2028,7 +2027,7 @@ For any derivable expression $M$ with $\deg(M) = i - 1$, we have
 \end{lemma}
 
 \begin{proof}
-By induction on $\mu(\tau_i(M)$ and the structure of $M$, lexicographically ordered.
+By induction on $\mu(\tau_i(M))$ and the structure of $M$, lexicographically ordered.
 The cases in which $M$ is a sort, a variable, or a $\Pi$-type are straightforward.
 
 \noindent\underline{$\lambda$-Expression.}
@@ -2039,7 +2038,7 @@ By \Autoref{lem:mu-rho}, $\mu(A) \leq \mu(\rho_i'(A))$ and by the inductive hypo
 \mu(A) + \mu(N) \\ &\leq
 \mu(\rho_i'(A)) + \mu(\tau_i(N)) = \mu(\rho_i'(A)) + \mu(\tau_i'(N))
 \end{align*}
-And since $\mu(\tau_i'(N)) \leq \mu(\tau_i'(N)\pair[\rho_i'(A)] x {\bullet_i})$ we also have that $\mu(\lambdaT x A N) \leq \mu(\tau_i(\lambdaT x A M))$.
+And since $\mu(\tau_i'(N)) \leq \mu(\tau_i'(N)\pair[\rho_i'(A)] x {\bullet_i})$ we also have that $\mu(\lambdaT x A N) \leq \mu(\tau_i(\lambdaT x A N))$.
 
 \noindent\underline{Application.}
 We consider two cases.
@@ -2100,12 +2099,12 @@ Finally, by \Autoref{lem:mu-upper-bound}, this implies $\mu(M) \leq \mu(\tau_i(M
 
 \section{Conclusions}
 
-I've presented a proof that weak normalization implies strong normalization in non-dependent clean negatable tiered pure type systems.
-`Tiered' can be replaced with `generalized non-dependent` by considering a disjoint unions of tiered systems.
+I've presented a proof that weak normalization implies strong normalization in non-dependent clean negatable tiered pure type systems via thunkification.
+`Tiered' can be replaced with `generalized non-dependent' by considering a disjoint unions of tiered systems.
 The obvious question that remains is whether it is possible to prove strong normalization from weak normalization for \textit{all} non-dependent tiered systems.
-Removing cleanliness would require using a different form of padding gadget.
+Removing cleanliness would seem to require a different form of padding gadget.
 One potential place to look for this is Loader's translation \cite{loader-1995}, which attempts to derive padding terms on the fly from a collection of basic padding terms.
-Negatability should be replacable with a weaker form of negatability, which should be able to handle systems with a fully-generalizable bottom sort, \ie, $\setcomp {(s_1, s_i)}{i \in \upto n} \subset \rules_{\lS}$.
+Regardless, my hope is that, in its simplicity, this proof based on thunkification is amenable to modifications and improvements.
 
 \bibliographystyle{plain}
 \bibliography{references.bib}
