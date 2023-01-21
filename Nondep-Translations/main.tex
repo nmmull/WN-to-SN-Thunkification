@@ -1,0 +1,155 @@
+\documentclass{article}
+\usepackage{nmm}
+\usepackage{todonotes}
+\setuptodonotes{inline}
+
+\title{Some Notes}
+\author{Nathan Mull}
+
+\begin{document}
+
+\maketitle
+
+\abstract{
+  \todo{Write an abstract.}
+}
+
+\section{Perpetual Reductions}
+
+\begin{definition}
+A \term{(one-step) reduction strategy} is a mapping $F : \terms \to \terms$ such that $M \onestepbeta F(M)$.
+\end{definition}
+
+\todo{Definition of $F$-path.}
+
+\todo{Definition of strongly normalizing term}
+
+\begin{definition}
+A reduction strategy $F$ is \term{perpetual} if, for all expressions $M$ which are not strongly normalizing, the expression $F(M)$ is not strongly normalizing.
+In particular, the $F$-path of $M$ is infinite.
+\end{definition}
+
+\begin{definition}
+  The \term{left-most redex} of an expression $M$ which is not in normal form is defined inductively as follows.
+  \begin{itemize}
+    \item The left-most redex of $\PiT x A B$ is the left-most redex if $A$ if such a redex exists, and otherwise is the left-most redex of $B$.
+    \item The left-most redex of $\lambdaT x A B$ is the left-most redex of $A$ if such a redex exists, and otherwise is the left-most redex of $B$.
+    \item The left-most redex of $(\lambdaT x A M) N$ is the left-most redex of $A$ if such a redex exists, and otherwise is the redex $(\lambdaT x A M) N$ itself.
+    \item The left-most redex of $M N$ (where $MN$ itself is not a redex) is the left most redex of $M$ if such a redex exists and otherwise is the left most redex of $N$.
+  \end{itemize}
+\end{definition}
+
+
+
+
+
+\section{The Translation}
+
+\begin{definition}
+Define the families of functions
+\begin{displaymath}
+  \{\rho_i : \terms_{\geq i} \to \terms \}_{i \in \upto n}
+  \qquad \text{and} \qquad
+  \{\rho_i' : \terms_{\geq i} \to \terms\}_{i \in \upto n}
+\end{displaymath}
+simultaneously as follows.
+\begin{align*}
+  \rho_i(s_j) &\df s_j \qquad \text{(where $j \geq i - 1$)} \\
+  \rho_i(\svar j x) &\df \svar j x \qquad \text{(where $j \geq i + 1$)} \\
+  \rho_i(\PiT {\svar j x} A B) &\df
+    \PiT {\svar j x} {\rho_i'(A)} {\rho_i'(B)} \\
+  \rho_i(\lambdaT {\svar j x} A M) &\df
+    \lambdaT {\svar j x} {\rho_i(A)} {\rho_i(M)} \\
+  \rho_i(M N) &\df \rho_i(M) \rho_i(N) \\
+  \rho_i'(A) &\df
+  \begin{cases}
+    \rho_i(A) \to \bot \to \bot & \deg(A) = i \\
+    \rho_i(A) & \ow
+  \end{cases}
+\end{align*}
+where $\bot$ is a distinguished variable from $\vars_\star$.
+The functions in $\{\rho_i'\}_{i \in \upto n}$ are extended to contexts as follows.
+\begin{align*}
+\rho_i'(\emptyContext) &\df (\statement \bot \star) \\
+\rho_i'(\Gamma, \statement {\svar j x} A) &\df
+\begin{cases}
+  \rho_i'(\Gamma), \statement {\avar s x} {\rho_i'(A)} & j \geq i \\
+  \rho_i'(\Gamma) & \ow
+\end{cases}
+\end{align*}
+where $s = \star$ if $j = i$ and $s = s_j$ otherwise.
+\end{definition}
+
+\begin{lemma}
+\label{lem:rho-commutes-sub}
+($\rho_i$ and $\rho_i'$ commute with substitution) For index $i$, variable $\svar j x$ and expressions $M$ and $N$ where $\deg(N) = j - 1$ the following hold.
+\begin{itemize}
+\item $\rho_i(\sub M N {\svar j x}) = \sub {\rho_i(M)} {\rho_i(N)} {\svar j x}$
+\item $\rho_i'(\sub M N {\svar j x}) = \sub {\rho_i'(M)} {\rho_i(N)} {\svar j x}$
+\end{itemize}
+\end{lemma}
+
+\begin{lemma}
+\label{lem:rho-beta}
+($\rho_i$ and $\rho_i'$ preserve $\beta$-reductions)
+For index $i$ and derivable expressions $M$ and $N$,
+\begin{itemize}
+\item if $M \onestepbeta N$ then $\rho_i(M) \onestepbeta \rho_i(N)$ and $\rho_i'(M) \onestepbeta \rho_i'(N)$;
+\item if $M \eqbeta N$ then $\rho_i(M) \eqbeta \rho_i(N)$ and $\rho_i'(M) \eqbeta \rho_i'(N)$.
+\end{itemize}
+\end{lemma}
+
+\begin{definition}
+For any $n$-tiered pure type system $\lS$ define $\lS^\bot$ to be the system specified by
+\begin{align*}
+  \sorts_{\lS^\bot} &\df \sorts_{\lS} \cup \{s_{n + 1}, \star, \square\} \\
+  \axioms_{\lS^\bot} &\df \axioms_{\lS} \cup \{(\star, \square)\} \\
+  \rules_{\lS^\bot} &\df \rules_{\lS} \cup \{(\star, \star)\} \cup \setcomp {(s_i, \star)} {i \in \upto {n + 1}}
+\end{align*}
+\end{definition}
+
+\begin{lemma}
+\label{lem:rho-pres-type}
+($\rho_i$ and $\rho_i'$ preserve typability) For any non-dependent tiered pure type system $\lS$,
+\begin{enumerate}
+  \item
+    \label{item:rho-preserves-types-i}
+    If $\judgment[\lS] \Gamma M s_i$, then $\judgment[\lS^\bot] {\rho_i'(\Gamma)} {\rho_i(M)} s$ where $s = s_i$ or $s = \star$.
+  \item
+    \label{item:rho-preserves-types-ii}
+    If $\judgment[\lS] \Gamma M s_j$ with $j \geq i$, then $\judgment[\lS^\bot] {\rho_i'(\Gamma)} {\rho'_i(M)} s$ where
+    \begin{displaymath}
+      s =
+      \begin{cases}
+        \star & j = i \\
+        s_j & \ow. \\
+      \end{cases}
+    \end{displaymath}
+  \item
+    \label{item:rho-preserves-types-iii}
+    If $\judgment[\lS] \Gamma M A$ with $\deg(M) \geq i$ and $A \not = s_i$ then $\judgment[\lS^\bot]{\rho_i'(\Gamma)} {\rho_i(M)} {\rho_i(A)}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Simultaneously by induction on the structure of derivations.
+
+\indcase{Axiom}
+
+\indcase{Variable Introduction}
+
+\indcase{Weakening}
+
+\indcase{Product Type Formation}
+
+\indcase{Abstraction}
+
+\indcase{Application}
+
+\indcase{Conversion}
+\end{proof}
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
+
+\end{document}
