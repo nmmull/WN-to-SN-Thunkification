@@ -16,8 +16,10 @@
 
 \section{Perpetual Reductions}
 
+\todo{Define contexts}
+
 \begin{definition}
-A \term{(one-step) reduction strategy} is a mapping $F : \terms \to \terms$ such that $M \onestepbeta F(M)$.
+A \term{(one-step) reduction strategy} is a mapping $F : \terms \to \terms$ such that $F(M) = M$ if $M \in \mathsf{NF}$ and $M \onestepbeta F(M)$ otherwise.
 \end{definition}
 
 \todo{Definition of $F$-path.}
@@ -39,11 +41,66 @@ In particular, the $F$-path of $M$ is infinite.
   \end{itemize}
 \end{definition}
 
+Note that for this notion of left-most redex, we have that if $(\lambdaT x A P)Q$ is a left-most redex, then $A$ is in normal-form.
 
+\begin{definition}
+The \term{left-most reduction strategy}, denoted here by $F_\ell$ is the strategy such that $F_\ell(M)$ is the result of reducing the left-most redex of $M$.
+\end{definition}
 
+\begin{definition}
+The reduction strategy $F_\infty$ is defined as follows.
+Let $M$ be an expression.
+If $M \in \mathsf{NF}$, then $F_\infty(M) \df M$
+Let $M$ be an expression such that $M = C[(\lambdaT x A P)Q]$ where $(\lambdaT x A P) Q$ is the left-most redex of $M$.
+\begin{displaymath}
+F_\infty(M) \df
+\begin{cases}
+  C[(\lambdaT x A P)F_\infty(Q)] & \text{$(\lambdaT x A P)Q \in \mathsf{KR}$ and $Q \not \in \mathsf{NF}$} \\
+  C[\sub P Q x] & \ow. \\
+\end{cases}
+\end{displaymath}
+\end{definition}
 
+\begin{lemma}
+The reduction strategy $F_\infty$ is perpetual.
+\end{lemma}
+
+\begin{proof}
+Let $M$ an expression which is not strongly normalizing and let $R$ denote the left-most redex $(\lambdaT x A P)Q$ of $M$.
+Let $C$ be the context such that $M = C[R]$.
+Consider an infinite reduction sequence
+\begin{displaymath}
+    M \onestepbeta M_1 \onestepbeta M_2 \onestepbeta \dots
+\end{displaymath}
+First suppose that $R$ is an $I$-redex and $F_\infty(M) = C[\sub P Q x]$.
+If the above reduction contains only reduction of non-left-most redexes of $M$, then we can check each case.
+\todo{Check each case.}
+Otherwise, there is some $k$ such that $M_k \onestepbeta M_{k + 1}$ by reducing the left-most redex of $M_k$.
+Then we can follow along up to that point and then continue.
+\todo{Write this more carefully.}
+
+Next suppose that $R \in \mathsf{KR}$.
+If $Q \in \mathsf{NF}$, then $F_\infty(M) = C[P]$ and since $Q \not \in \mathsf{SN}$, it must be that $C[P] \not \in \mathsf{SN}$ by \autoref{}.
+\todo{Write this lemma.}
+So suppose that $Q \not \in \mathsf{NF}$.
+If $Q \in \mathsf{SN}$, then by \autoref{}, this holds.
+\todo{Use lemma!}
+Otherwise, we have $F_\infty(Q) \not \in \mathsf{SN}$ by the inductive hypothesis, which implies $F_\infty(M) \not \in \mathsf{SN}$.
+\end{proof}
+
+Thus, we have that $F_\infty$ is a perpetual reduction.
+We can then use this to prove that if $M \in \mathsf{SN}$, then $\tau_i(M) \in \mathsf{WN}$.
+The basic idea is that if $M \in \mathsf{SN}$, then the $F_\infty$-path of $M$ is finite, but if we can simulate this path in the thunkified term and look at the structure of the final term. It will be the same as $M$ up to some erasures, And the erasures only remove terms that are already in normal form.
+So it strong normalization can be preserved.
+
+Next we need to show that weak normalization is preserved. This means instead simulating the left-most reduction strategy, which means 
 
 \section{The Translation}
+
+\begin{definition}
+For $i \in \dran 2 n$, let $\bot_i$ denote $s_{i - 1}$ and let $\bot_1$ be a distinguished variable.
+Also let $\Delta_1$ and $\Delta_2$ denote the context $(\bot_1 : s_1)$ and let $\Delta_i$ denote the empty context in all other cases.\footnote{We define $\Delta_2$ in this way because we want that in all contexts $\Delta_j$ where $j \geq 2$, the expression $\bot_{j - 1}$ is derivable. This will play a similar role to the variable $I$ included in contexts by Barthe \etal (Definition 3.2, \cite{barthe-et-al-2001}).}
+\end{definition}
 
 \begin{definition}
 Define the families of functions
@@ -57,27 +114,25 @@ simultaneously as follows.
   \rho_i(s_j) &\df s_j \qquad \text{(where $j \geq i - 1$)} \\
   \rho_i(\svar j x) &\df \svar j x \qquad \text{(where $j \geq i + 1$)} \\
   \rho_i(\PiT {\svar j x} A B) &\df
-    \PiT {\svar j x} {\rho_i'(A)} {\rho_i'(B)} \\
+    \PiT {\svar j x} {\rho_i'(A)} {\rho_i(B)} \\
   \rho_i(\lambdaT {\svar j x} A M) &\df
     \lambdaT {\svar j x} {\rho_i(A)} {\rho_i(M)} \\
   \rho_i(M N) &\df \rho_i(M) \rho_i(N) \\
   \rho_i'(A) &\df
   \begin{cases}
-    \rho_i(A) \to \bot \to \bot & \deg(A) = i \\
+    \bot_i \to \rho_i(A) & \deg(A) = i \\
     \rho_i(A) & \ow
   \end{cases}
 \end{align*}
-where $\bot$ is a distinguished variable from $\vars_\star$.
 The functions in $\{\rho_i'\}_{i \in \upto n}$ are extended to contexts as follows.
 \begin{align*}
-\rho_i'(\emptyContext) &\df (\statement \bot \star) \\
+\rho_i'(\emptyContext) &\df (\statement {\bot_i} {s_i}) \\
 \rho_i'(\Gamma, \statement {\svar j x} A) &\df
 \begin{cases}
   \rho_i'(\Gamma), \statement {\avar s x} {\rho_i'(A)} & j \geq i \\
-  \rho_i'(\Gamma) & \ow
+  \rho_i'(\Gamma) & \ow. \\
 \end{cases}
 \end{align*}
-where $s = \star$ if $j = i$ and $s = s_j$ otherwise.
 \end{definition}
 
 \begin{lemma}
@@ -100,34 +155,19 @@ For index $i$ and derivable expressions $M$ and $N$,
 \end{lemma}
 
 \begin{definition}
-For any $n$-tiered pure type system $\lS$ define $\lS^\bot$ to be the system specified by
+For any $n$-tiered pure type system $\lS$ define $\lS^\bot$ to be the $(n + 1)$-tiered system specified by
 \begin{align*}
-  \sorts_{\lS^\bot} &\df \sorts_{\lS} \cup \{s_{n + 1}, \star, \square\} \\
-  \axioms_{\lS^\bot} &\df \axioms_{\lS} \cup \{(\star, \square)\} \\
-  \rules_{\lS^\bot} &\df \rules_{\lS} \cup \{(\star, \star)\} \cup \setcomp {(s_i, \star)} {i \in \upto {n + 1}}
+  \rules_{\lS^\bot} &\df \rules_{\lS} \cup \setcomp {(s_j, s_i)} {j \geq i}
 \end{align*}
 \end{definition}
 
 \begin{lemma}
 \label{lem:rho-pres-type}
-($\rho_i$ and $\rho_i'$ preserve typability) For any non-dependent tiered pure type system $\lS$,
+($\rho_i$ and $\rho_i'$ preserve typability) Let $\lS$ be a non-dependent tiered pure type systems.
+For index $i$, context $\Gamma$, and expressions $M$ and $A$, if $s_i$ is negatable then the following hold.
 \begin{enumerate}
-  \item
-    \label{item:rho-preserves-types-i}
-    If $\judgment[\lS] \Gamma M s_i$, then $\judgment[\lS^\bot] {\rho_i'(\Gamma)} {\rho_i(M)} s$ where $s = s_i$ or $s = \star$.
-  \item
-    \label{item:rho-preserves-types-ii}
-    If $\judgment[\lS] \Gamma M s_j$ with $j \geq i$, then $\judgment[\lS^\bot] {\rho_i'(\Gamma)} {\rho'_i(M)} s$ where
-    \begin{displaymath}
-      s =
-      \begin{cases}
-        \star & j = i \\
-        s_j & \ow. \\
-      \end{cases}
-    \end{displaymath}
-  \item
-    \label{item:rho-preserves-types-iii}
-    If $\judgment[\lS] \Gamma M A$ with $\deg(M) \geq i$ and $A \not = s_i$ then $\judgment[\lS^\bot]{\rho_i'(\Gamma)} {\rho_i(M)} {\rho_i(A)}$.
+\item\label{item:rho-preserves-types-i} If $\judgment[\lS] \Gamma M A$ and $\deg M \geq i$ then $\judgment[\lS^\bot] {\rho_i'(\Gamma)} {\rho_i(M)} {\rho_i(A)}$.
+\item\label{item:rho-preserves-types-ii} If $\judgment[\lS] \Gamma A {s_j}$ and $\deg A \geq i$ then $\judgment[\lS^\bot]{\rho_i'(\Gamma)} {\rho_i'(A)} {s_j}$.
 \end{enumerate}
 \end{lemma}
 
@@ -149,7 +189,34 @@ Simultaneously by induction on the structure of derivations.
 \indcase{Conversion}
 \end{proof}
 
+\begin{lemma}
+If $M \in \sn$, then $\tau_i(M) \in \wn$.
+\end{lemma}
+
+\begin{proof}
+Since $M$ is strongly normalizing, the $F_\infty$-path of $M$ is finite.
+We can follow along this path.
+\end{proof}
+
+\begin{definition}
+The reduction strategy $F_\tau$ is defined as follows.
+Let $M$ be a term with a redex $(\lambdaT x A M\langle x, \cdot \rangle)N$.
+\end{definition}
+
+I know realize this is no different than the last result.
+Because we're reducing something fully on $K$-redexes, which is sort of equivalent to the case of the perpetual reduction.
+Right, this is the perpetual reduction.
+
+\begin{lemma}
+If $M \in \wn$ and $M$ is derivable in $\lS$, then $\tau_i(M) \in \wn$.
+\end{lemma}
+
+\begin{proof}
+Consider the left-most reduction sequence of $M$, which is guaranteed to be finite since $M \in \wn$.
+The goal is to look at the following sequence.
+\end{proof}
+
 \bibliographystyle{plain}
 \bibliography{references.bib}
 
-\end{document}
+\end{document}s
